@@ -77,6 +77,35 @@ socketIO.on('connection', (socket) => {
     socket.emit("tasks", tasks);
   });
 
+  socket.on("addComment", (data) => {
+    const { category, userId, comment, id } = data;
+    //👇🏻 Gets the items in the task's category
+    const taskItems = tasks[category].items;
+    //👇🏻 Loops through the list of items to find a matching ID
+    for (let i = 0; i < taskItems.length; i++) {
+      if (taskItems[i].id === id) {
+        //👇🏻 Then adds the comment to the list of comments under the item (task)
+        taskItems[i].comments.push({
+          name: userId,
+          text: comment,
+          id: fetchID(),
+        });
+        //👇🏻 sends a new event to the React app
+        socket.emit("comments", taskItems[i].comments);
+      }
+    }
+  });
+
+  socket.on("fetchComments", (data) => {
+    const { category, id } = data;
+    const taskItems = tasks[category].items;
+    for (let i = 0; i < taskItems.length; i++) {
+      if (taskItems[i].id === id) {
+        socket.emit("comments", taskItems[i].comments);
+      }
+    }
+  });
+
   socket.on("taskDragged", (data) => {
     const { source, destination } = data;
 
