@@ -68,6 +68,15 @@ const socketIO = require('socket.io')(http, {
 socketIO.on('connection', (socket) => {
   console.log(`⚡: ${socket.id} user just connected!`);
 
+  socket.on("createTask", (data) => {
+    // 👇🏻 Constructs an object according to the data structure
+    const newTask = { id: fetchID(), title: data.task, comments: [] };
+    // 👇🏻 Adds the task to the pending category
+    tasks["pending"].items.push(newTask);
+    // 👇🏻 Fires the tasks event for update
+    socket.emit("tasks", tasks);
+  });
+
   socket.on("taskDragged", (data) => {
     const { source, destination } = data;
 
